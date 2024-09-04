@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .queue-container {
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        #timer {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .team {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .team.current {
+            background-color: #ffeb3b;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer">00:00</div>
+
+<div class="queue-container">
+    <h2>Current Queue</h2>
+    <div id="queue"></div>
+</div>
+
+<script>
+    let interval;
+    let queue = JSON.parse(localStorage.getItem('queue')) || [];
+    let isPaused = JSON.parse(localStorage.getItem('pause')) || false;
+
+    function displayQueue() {
+        const queueContainer = document.getElementById('queue');
+        const updateQueueFlag = localStorage.getItem('update-queue');
+
+        if (updateQueueFlag) {
+            // update queue frm the update flag
+            queue = JSON.parse(localStorage.getItem('queue')) || [];
+            localStorage.removeItem('update-queue'); // clear update flag
+        }
+
+        queueContainer.innerHTML = '';  // clear display
+
+        queue.forEach((team, index) => {
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'team';
+            if (index === 0) {
+                teamDiv.classList.add('current');
+            }
+            teamDiv.innerHTML = `<span>Team: ${team.teamNumber}</span>`;
+            queueContainer.appendChild(teamDiv);
+        });
+
+        if (queue.length > 0) {
+            startTimer(queue);
+        } else {
+            clearInterval(interval);
+            document.getElementById('timer').innerText = '00:00';
+        }
+    }
+
+    function startTimer(queue) {
+        if (isPaused) return;
+
+        let currentTeam = queue[0];
+        let timeLeft = currentTeam.timer;
+        clearInterval(interval);  // Clear existing timer
+
+        interval = setInterval(() => {
+            if (isPaused) {
+                clearInterval(interval);
+                return;
+            }
+
+            if (timeLeft > 0) {
+                timeLeft--;
+                queue[0].timer = timeLeft;
+                localStorage.setItem('queue', JSON.stringify(queue));
+                document.getElementById('timer').innerText = formatTime(timeLeft);
+            } else {
+                queue.shift();  // Rmv team frm queue top
+                localStorage.setItem('queue', JSON.stringify(queue));
+                displayQueue();  // refresh queue start next timer
+            }
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Initial load
+    window.onload = displayQueue;
+
+    // Handle updates and timer control
+    setInterval(() => {
+        const updateQueueFlag = localStorage.getItem('update-queue');
+        if (updateQueueFlag) {
+            displayQueue();
+        }
+
+        // look for pause flag
+        const newPauseState = JSON.parse(localStorage.getItem('pause'));
+        if (newPauseState !== isPaused) {
+            isPaused = newPauseState;
+            if (!isPaused) {
+                startTimer(queue);
+            } else {
+                clearInterval(interval);
+            }
+        }
+    }, 1000);
+
+    // Pause resume
+    function pauseTimer() {
+        isPaused = !isPaused;
+        localStorage.setItem('pause', JSON.stringify(isPaused));
+        if (!isPaused) {
+            startTimer(queue);
+        } else {
+            clearInterval(interval);
+        }
+    }
+
+    window.pauseTimer = pauseTimer;
+</script>
+
+</body>
+</html>
