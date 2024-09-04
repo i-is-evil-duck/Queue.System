@@ -1,7 +1,7 @@
 # Field.Recorder  <br />  <img alt="Stargazers" src="https://img.shields.io/github/stars/i-is-evil-duck/Field.Recorder?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41">
 
 ### silly think for our field
-## use admin.html to add teams to selection
+use admin.html to add teams to selection
 
 open index.html and press button to add to queue (team cant be added if they are already in queue)
 
