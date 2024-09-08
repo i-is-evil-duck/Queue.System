@@ -1,9 +1,9 @@
-queue<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queue Input</title>
+    <title>Button Redirects</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,10 +13,11 @@ queue<!DOCTYPE html>
             flex-direction: column;
             align-items: center;
         }
-        .queue-container {
+        .button-container {
             max-width: 600px;
             width: 100%;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            text-align: center;
         }
         .team-button {
             background-color: #4CAF50;
@@ -34,44 +35,16 @@ queue<!DOCTYPE html>
     </style>
 </head>
 <body>
-
-<h2>Select Your Team</h2>
-<div id="teams"></div>
-
-<script>
-    function loadTeams() {
-        const teams = JSON.parse(localStorage.getItem('teams')) || [];
-        const teamsContainer = document.getElementById('teams');
-
-        teamsContainer.innerHTML = '';  // clr list
-
-        teams.forEach(team => {
-            const button = document.createElement('button');
-            button.className = 'team-button';
-            button.textContent = team.teamName;
-            button.onclick = () => addToQueue(team.teamName);
-            teamsContainer.appendChild(button);
-        });
-    }
-
-    function addToQueue(teamName) {
-        const queue = JSON.parse(localStorage.getItem('queue')) || [];
-        const defaultTime = parseInt(localStorage.getItem('defaultTime')) || 60;
-
-        // Check if team is alr in queue
-        const teamExists = queue.some(item => item.teamNumber === teamName);
-        if (!teamExists) {
-            queue.push({ teamNumber: teamName, timer: defaultTime });
-            localStorage.setItem('queue', JSON.stringify(queue));
-            localStorage.setItem('update-queue', 'true'); // Set update flag
-            alert(`Team ${teamName} added to the queue!`);
-        } else {
-            alert("Team is already in the queue.");
-        }
-    }
-
-    window.onload = loadTeams;
-</script>
-
+    <div class="button-container">
+        <a href="client.html">
+            <button class="team-button">Client</button>
+        </a>
+        <a href="queue.html">
+            <button class="team-button">Queue</button>
+        </a>
+        <a href="admin.html">
+            <button class="team-button">Admin</button>
+        </a>
+    </div>
 </body>
 </html>
